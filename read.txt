@@ -1,0 +1,30 @@
+svg是可伸缩的矢量图形
+这里先说一下svg是什么，官方说法svg是使用XML来描述二维图形和绘图程序的语言，是指可伸缩矢量图形，图像在放大或改变尺寸的情况下其图形质量不会有所损失。
+     首先要先知道怎么在页面加入SVG代码，先举个栗子，嗯...例子。
+<svg width=”100% ” height=”100%”>
+<circle cx=”300” cy=”60” r=”50” stroke=”#fff” stroke-width=”2” fill=”yellow”>
+<svg>
+这里就会在页面中出现一个黄色的圆，具体里面的属性请参照http://www.w3school.com.cn/svg/,这里就不多说了，既然我要做路径动画，就主要说一下svg的路径。
+<path>标签，一看到path，故名思议是用来定义路径的，里面主要有一些命令是用于路径数据的，在w3school上，能看到一个例子：
+<svg width=”100% ” height=”100%”>
+<path d=”M250 150 L150 350 L350 350 Z”>
+<svg>
+它的意思是开始于位置250 1 50，到达位置150 350，然后从那里开始到350 350，最后再250 250关闭路径。当时我在看到这里的时候一脸迷茫，然后我就在想那我们设计出的不规则路径我该咋画。这个时候百度是很强大的，我在经过了一系列的百度后，发现可以用AI导出svg的路径，虽然以前学过AI，但是已经忘记了，特意下了一个AI，然后请教设计姐姐帮忙绘制了一个简单的不规则路线，最后生成SVG格式，导出了路径。
+路径的path代码已经知道怎么实现了，接下来就要解决小人怎么在路径上从开始的运动到结束的点，经过查找API，知道了<animateMotion>是可以让SVG各种图形沿着特定的Path路径运动的，这里我需要让一个gif图在路径上运动，所以要用<image></image>标签，其中xlink:href是防止图片链接的地址，<animateMotion>标签里面xlink:href指向<image>的id，dur是运动时间，repeatCount表示动画执行的次数，这里我们只需要一次，就写1，如果要无线循环下去可以写“indefinte”。这里简单贴一下代码
+<image  class="fz" id="person"  x="-126" y="-266"  xlink:href="http://n.sinaimg.cn/games/lh-2017/RenWuPaoBu.gif" width="219" height="297" style="-webkit-transform:rotateY(-180deg) scale(0.28);transform: rotateY(-180deg) scale(0.28);"/>
+
+<animateMotion xlink:href="#person" dur="7s"   repeatCount="1" fill="freeze"><mpath xlink:href="#road1-1" id="mpath"/></animateMotion><!--新0810-->
+其中<mpath>里面的xlink:hreft写<path>标签里的id,这样小人就可以沿着路径运动了，最开始还遇到了小人中心点偏移路径的问题，最后经过查找，发现通过修改<image>标签里的x和y值可以改变小人的位置。
+既然小人也能动了，剩下的就是最后一个路径动画了这里主要涉及到两个属性：stroke-dasharray(虚线描边)和stroke-dashoffset(虚线起始偏移) ，结合CSS3动画，这里可以很快的实现路径动画了。
+@-webkit-keyframes dash {
+
+    to {
+
+        stroke-dashoffset: 0;
+
+    }
+
+}
+
+这里基本就已经实现了人物运动轨迹的效果。
+最后由于要画6条路径，最开始想着可以一次画完整体路径，然后每一期到达指定位置，最后发现很不好实现，只能单独画6条路径，其中用AI画路径也废了不少时间。svg有一个很好的框架，可以省去自动以的CSS3动画，也可以减少部分麻烦的问题，最后用了segment.js框架，简单的了解了一下API，又重新封装了一下自己的代码，在每周新城市上线后，改变一下参数就可以了。
